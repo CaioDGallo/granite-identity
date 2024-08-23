@@ -8,7 +8,7 @@
 
 ## Project Description
 
-- Build microservices that simulate key financial operations Stone might be interested in:
+- Build microservices that simulate key financial operations a fintech might be interested in:
 
     1. Transaction Service: Processes financial transactions (e.g., payments, transfers).
     2. Account Service: Manages user accounts, balances, and transaction history.
