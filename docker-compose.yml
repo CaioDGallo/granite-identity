@@ -1,0 +1,37 @@
+services:
+  granitedb:
+    image: postgres:latest
+    container_name: granitedb
+    restart: unless-stopped
+    ports:
+      - ${DB_PORT:-5432}:5432
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    volumes:
+      - granitedb:/var/lib/postgresql/data
+
+  granite-postgres-exporter:
+    image: prometheuscommunity/postgres-exporter
+    ports:
+      - 9187:9187
+    environment:
+      DATA_SOURCE_NAME: "postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:5432/${DB_NAME}?sslmode=disable"
+    links:
+      - granitedb
+  
+  granite:
+    container_name: granite
+    build:
+      context: .
+      dockerfile: ./build/Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      - granitedb
+
+volumes:
+  granitedb:
+    driver: local
+
