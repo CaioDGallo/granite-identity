@@ -37,7 +37,7 @@ func createAccount(c *gin.Context) {
 
 func getAccount(c *gin.Context) {
 	id := c.Param("id")
-	account, err := accountService.GetAccount(id)
+	account, err := accountService.GetAccountByID(id)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

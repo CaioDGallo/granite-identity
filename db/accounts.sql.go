@@ -23,10 +23,10 @@ type CreateAccountParams struct {
 	UserID        uuid.UUID
 	Balance       pgtype.Numeric
 	Currency      string
-	Status        string
+	Status        AccountStatus
 	CreatedAt     pgtype.Timestamp
 	UpdatedAt     pgtype.Timestamp
-	AccountType   string
+	AccountType   AccountType
 	AccountNumber string
 }
 
@@ -42,6 +42,28 @@ func (q *Queries) CreateAccount(ctx context.Context, arg CreateAccountParams) (A
 		arg.AccountType,
 		arg.AccountNumber,
 	)
+	var i Account
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Balance,
+		&i.Currency,
+		&i.Status,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.AccountType,
+		&i.AccountNumber,
+		&i.LastActivity,
+	)
+	return i, err
+}
+
+const getAccountByAccountNumber = `-- name: GetAccountByAccountNumber :one
+SELECT id, user_id, balance, currency, status, created_at, updated_at, account_type, account_number, last_activity FROM accounts WHERE account_number = $1
+`
+
+func (q *Queries) GetAccountByAccountNumber(ctx context.Context, accountNumber string) (Account, error) {
+	row := q.db.QueryRow(ctx, getAccountByAccountNumber, accountNumber)
 	var i Account
 	err := row.Scan(
 		&i.ID,

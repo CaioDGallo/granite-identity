@@ -39,3 +39,19 @@ func float64Pow10(exp int32) float64 {
 	}
 	return result
 }
+
+func BigRatToNumeric(rat *big.Rat) (pgtype.Numeric, error) {
+	// Convert big.Rat to string
+	ratStr := rat.FloatString(10) // Convert to string with 10 decimal places
+
+	// Create a new pgtype.Numeric
+	var numeric pgtype.Numeric
+
+	// Use Scan to set the value
+	err := numeric.Scan(ratStr)
+	if err != nil {
+		return pgtype.Numeric{}, err
+	}
+
+	return numeric, nil
+}

@@ -1,10 +1,13 @@
 package service
 
 import (
+	"context"
 	"errors"
+	"math/big"
+	"time"
 
-	dbstore "github.com/CaioDGallo/granite-identity/db"
-	"github.com/CaioDGallo/granite-identity/internal/database"
+	"github.com/CaioDGallo/granite-identity/internal/domain"
+	"github.com/CaioDGallo/granite-identity/internal/repository"
 	"github.com/google/uuid"
 )
 
@@ -13,33 +16,73 @@ var (
 	ErrInsufficientFunds = errors.New("insufficient funds")
 )
 
-type Account struct {
-	ID uuid.UUID
-}
-
 type CreateAccountRequest struct {
-	UserID uuid.UUID
+	Currency    string
+	AccountType domain.AccountType
+	UserID      uuid.UUID
 }
 
 type AccountService struct {
-	q *dbstore.Queries
+	r *repository.AccountRepository
 }
 
 func NewAccountService() *AccountService {
-	return &AccountService{q: dbstore.New(database.GetDB())}
+	return &AccountService{}
 }
 
-func (s *AccountService) CreateAccount(req CreateAccountRequest) (Account, error) {
-	account := Account{
-		ID: uuid.New(),
+func (s *AccountService) CreateAccount(req CreateAccountRequest) (*domain.Account, error) {
+	ctx := context.Background()
+
+	balance := *new(big.Rat).SetInt64(0)
+
+	var accountNumber string
+	var err error
+
+	for {
+		accountNumber, err = domain.GenerateAccountNumber()
+		if err != nil {
+			return nil, err
+		}
+
+		found, _ := s.r.GetAccountByAccountNumber(ctx, accountNumber)
+
+		if found == nil {
+			break
+		}
 	}
 
-	return account, nil
+	account := &domain.Account{
+		ID:            uuid.New(),
+		Currency:      req.Currency,
+		AccountType:   req.AccountType,
+		UserID:        req.UserID,
+		Status:        domain.Active,
+		Balance:       balance,
+		CreatedAt:     time.Now(),
+		UpdatedAt:     time.Now(),
+		LastActivity:  time.Now(),
+		AccountNumber: "",
+	}
+
+	newAccount, err := s.r.CreateAccount(ctx, account)
+	if err != nil {
+		return nil, err
+	}
+
+	return newAccount, nil
 }
 
-func (s *AccountService) GetAccount(accountID string) (Account, error) {
-	account := Account{
-		ID: uuid.New(),
+func (s *AccountService) GetAccountByID(accountID string) (*domain.Account, error) {
+	accountUUID, err := uuid.Parse(accountID)
+	if err != nil {
+		return nil, err
+	}
+
+	ctx := context.Background()
+
+	account, err := s.r.GetAccountByID(ctx, accountUUID)
+	if err != nil {
+		return nil, err
 	}
 
 	return account, nil
