@@ -6,6 +6,7 @@ import (
 	"math/big"
 	"time"
 
+	"github.com/CaioDGallo/granite-identity/internal/database"
 	"github.com/CaioDGallo/granite-identity/internal/domain"
 	"github.com/CaioDGallo/granite-identity/internal/repository"
 	"github.com/google/uuid"
@@ -28,7 +29,7 @@ type AccountService struct {
 
 func NewAccountService() *AccountService {
 	return &AccountService{
-		r: repository.NewAccountRepository(),
+		r: repository.NewAccountRepository(database.GetStore()),
 	}
 }
 

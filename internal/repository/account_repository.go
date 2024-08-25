@@ -12,10 +12,10 @@ import (
 )
 
 type AccountRepository struct {
-	queries *dbstore.Queries
+	store *database.Store
 }
 
-func NewAccountRepository() *AccountRepository {
+func NewAccountRepository(store *database.Store) *AccountRepository {
 	db := database.GetDB()
 	if db == nil {
 		panic("database connection is nil")
@@ -27,27 +27,33 @@ func NewAccountRepository() *AccountRepository {
 	}
 
 	return &AccountRepository{
-		queries: queries,
+		store: store,
 	}
 }
 
 func (r *AccountRepository) CreateAccount(ctx context.Context, account *domain.Account) (*domain.Account, error) {
+	var newAccount dbstore.Account
 	var balance pgtype.Numeric
-	balanceStr := account.Balance.RatString() // Convert big.Rat to string
+
+	balanceStr := account.Balance.RatString()
 	if err := balance.Scan(balanceStr); err != nil {
 		return nil, err
 	}
 
-	newAccount, err := r.queries.CreateAccount(ctx, dbstore.CreateAccountParams{
-		ID:            account.ID,
-		UserID:        account.UserID,
-		Balance:       balance,
-		Currency:      account.Currency,
-		Status:        dbstore.AccountStatus(account.Status.String()),
-		CreatedAt:     pgtype.Timestamp{Time: account.CreatedAt, Valid: true},
-		UpdatedAt:     pgtype.Timestamp{Time: account.UpdatedAt, Valid: true},
-		AccountType:   dbstore.AccountType(account.AccountType.String()),
-		AccountNumber: account.AccountNumber,
+	err := r.store.ExecTx(ctx, func(q *dbstore.Queries) error {
+		var err error
+		newAccount, err = q.CreateAccount(ctx, dbstore.CreateAccountParams{
+			ID:            account.ID,
+			UserID:        account.UserID,
+			Balance:       balance,
+			Currency:      account.Currency,
+			Status:        dbstore.AccountStatus(account.Status.String()),
+			CreatedAt:     pgtype.Timestamp{Time: account.CreatedAt, Valid: true},
+			UpdatedAt:     pgtype.Timestamp{Time: account.UpdatedAt, Valid: true},
+			AccountType:   dbstore.AccountType(account.AccountType.String()),
+			AccountNumber: account.AccountNumber,
+		})
+		return err
 	})
 	if err != nil {
 		return nil, err
@@ -83,7 +89,7 @@ func (r *AccountRepository) CreateAccount(ctx context.Context, account *domain.A
 }
 
 func (r *AccountRepository) GetAccountByID(ctx context.Context, id uuid.UUID) (*domain.Account, error) {
-	account, err := r.queries.GetAccountByID(ctx, id)
+	account, err := r.store.GetAccountByID(ctx, id)
 	if err != nil {
 		return nil, err
 	}
@@ -118,7 +124,7 @@ func (r *AccountRepository) GetAccountByID(ctx context.Context, id uuid.UUID) (*
 }
 
 func (r *AccountRepository) GetAccountByAccountNumber(ctx context.Context, accountNumber string) (*domain.Account, error) {
-	account, err := r.queries.GetAccountByAccountNumber(ctx, accountNumber)
+	account, err := r.store.GetAccountByAccountNumber(ctx, accountNumber)
 	if err != nil {
 		return nil, err
 	}
