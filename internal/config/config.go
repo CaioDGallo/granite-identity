@@ -18,6 +18,8 @@ type Config struct {
 	DBName           string
 	Env              string
 	MessageBrokerURL string
+	Environment      string
+	Version          string
 }
 
 func LoadConfig() (*Config, error) {
@@ -34,6 +36,8 @@ func LoadConfig() (*Config, error) {
 		DBName:           getEnv("DB_NAME", "accounts_db"),
 		Env:              getEnv("ENV", "development"),
 		MessageBrokerURL: getEnv("MESSAGE_BROKER_URL", "amqp://guest:guest@172.17.0.1:5672/"),
+		Environment:      getEnv("ENVIRONMENT", "development"),
+		Version:          getEnv("VERSION", "v0.0.1"),
 	}
 
 	return config, nil
