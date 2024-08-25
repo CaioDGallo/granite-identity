@@ -1,13 +1,11 @@
 package v1
 
 import (
-	"log/slog"
 	"net/http"
 
 	"github.com/CaioDGallo/granite-identity/internal/service"
 	utils "github.com/CaioDGallo/granite-identity/internal/util"
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 )
 
 var accountService *service.AccountService
@@ -23,18 +21,7 @@ func RegisterRoutes(router *gin.Engine) {
 }
 
 func createAccount(c *gin.Context) {
-	requestID, exists := utils.GetRequestID(c)
-
-	if !exists {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Request ID not found"})
-		return
-	}
-
-	// TODO: get real user ID
-	userID := uuid.New()
-
-	logger := slog.With(slog.String("request_id", requestID), slog.String("user_id", userID.String()))
-	logger.Info("Handling create account request")
+	utils.LogRequestHandling(c, "Handling create account request")
 
 	var req service.CreateAccountRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -52,6 +39,8 @@ func createAccount(c *gin.Context) {
 }
 
 func getAccount(c *gin.Context) {
+	utils.LogRequestHandling(c, "Handling get account request")
+
 	id := c.Param("id")
 	account, err := accountService.GetAccountByID(id)
 	if err != nil {
