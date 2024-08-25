@@ -30,6 +30,8 @@ func Connect(ctx context.Context, cfg config.Config) (*pgxpool.Pool, error) {
 		return nil, err
 	}
 
+	dbPool = pool
+
 	return pool, nil
 }
 

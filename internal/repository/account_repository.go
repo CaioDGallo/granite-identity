@@ -16,14 +16,25 @@ type AccountRepository struct {
 }
 
 func NewAccountRepository() *AccountRepository {
+	db := database.GetDB()
+	if db == nil {
+		panic("database connection is nil")
+	}
+
+	queries := dbstore.New(db)
+	if queries == nil {
+		panic("failed to initialize dbstore.Queries")
+	}
+
 	return &AccountRepository{
-		queries: dbstore.New(database.GetDB()),
+		queries: queries,
 	}
 }
 
 func (r *AccountRepository) CreateAccount(ctx context.Context, account *domain.Account) (*domain.Account, error) {
 	var balance pgtype.Numeric
-	if err := balance.Scan(account.Balance); err != nil {
+	balanceStr := account.Balance.RatString() // Convert big.Rat to string
+	if err := balance.Scan(balanceStr); err != nil {
 		return nil, err
 	}
 

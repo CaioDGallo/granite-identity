@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 
@@ -18,6 +19,10 @@ const (
 
 func (s AccountStatus) String() string {
 	return [...]string{"Active", "Suspended", "Closed", "Pending"}[s]
+}
+
+func (t AccountStatus) MarshalJSON() ([]byte, error) {
+	return json.Marshal(t.String())
 }
 
 func ParseAccountStatusFromString(status string) (AccountStatus, error) {

@@ -18,7 +18,7 @@ var (
 
 type CreateAccountRequest struct {
 	Currency    string
-	AccountType domain.AccountType
+	AccountType string
 	UserID      uuid.UUID
 }
 
@@ -27,7 +27,9 @@ type AccountService struct {
 }
 
 func NewAccountService() *AccountService {
-	return &AccountService{}
+	return &AccountService{
+		r: repository.NewAccountRepository(),
+	}
 }
 
 func (s *AccountService) CreateAccount(req CreateAccountRequest) (*domain.Account, error) {
@@ -51,17 +53,22 @@ func (s *AccountService) CreateAccount(req CreateAccountRequest) (*domain.Accoun
 		}
 	}
 
+	accountType, err := domain.ParseAccountTypeFromString(req.AccountType)
+	if err != nil {
+		return nil, err
+	}
+
 	account := &domain.Account{
 		ID:            uuid.New(),
 		Currency:      req.Currency,
-		AccountType:   req.AccountType,
+		AccountType:   accountType,
 		UserID:        req.UserID,
 		Status:        domain.Active,
 		Balance:       balance,
 		CreatedAt:     time.Now(),
 		UpdatedAt:     time.Now(),
 		LastActivity:  time.Now(),
-		AccountNumber: "",
+		AccountNumber: accountNumber,
 	}
 
 	newAccount, err := s.r.CreateAccount(ctx, account)

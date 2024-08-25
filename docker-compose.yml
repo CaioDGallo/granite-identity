@@ -25,11 +25,13 @@ services:
     container_name: granite
     build:
       context: .
-      dockerfile: ./build/Dockerfile
+      dockerfile: Dockerfile
     ports:
       - "8080:8080"
     depends_on:
       - granitedb
+    volumes:
+      - ./:/app
 
 volumes:
   granitedb:

@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"encoding/json"
 	"fmt"
 
 	dbstore "github.com/CaioDGallo/granite-identity/db"
@@ -18,6 +19,10 @@ const (
 
 func (t AccountType) String() string {
 	return [...]string{"Savings", "Checking", "Business", "Credit", "Investment"}[t]
+}
+
+func (t AccountType) MarshalJSON() ([]byte, error) {
+	return json.Marshal(t.String())
 }
 
 func ParseAccountTypeFromString(accountType string) (AccountType, error) {
