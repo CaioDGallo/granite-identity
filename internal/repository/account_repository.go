@@ -2,12 +2,15 @@ package repository
 
 import (
 	"context"
+	"log/slog"
 
 	dbstore "github.com/CaioDGallo/granite-identity/db"
 	"github.com/CaioDGallo/granite-identity/internal/database"
 	"github.com/CaioDGallo/granite-identity/internal/domain"
+	"github.com/CaioDGallo/granite-identity/internal/logger"
 	utils "github.com/CaioDGallo/granite-identity/internal/util"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
@@ -37,6 +40,7 @@ func (r *AccountRepository) CreateAccount(ctx context.Context, account *domain.A
 
 	balanceStr := account.Balance.RatString()
 	if err := balance.Scan(balanceStr); err != nil {
+		logger.GetLogger().Error("failed to scan balance", slog.String("error", err.Error()))
 		return nil, err
 	}
 
@@ -56,21 +60,25 @@ func (r *AccountRepository) CreateAccount(ctx context.Context, account *domain.A
 		return err
 	})
 	if err != nil {
+		logger.GetLogger().Error("failed to create account", slog.String("error", err.Error()))
 		return nil, err
 	}
 
 	nb, err := utils.NumericToBigRat(newAccount.Balance)
 	if err != nil {
+		logger.GetLogger().Error("failed to convert balance to big.Rat", slog.String("error", err.Error()))
 		return nil, err
 	}
 
 	status, err := domain.ParseAccountStatus(newAccount.Status)
 	if err != nil {
+		logger.GetLogger().Error("failed to parse account status", slog.String("error", err.Error()))
 		return nil, err
 	}
 
 	accountType, err := domain.ParseAccountType(newAccount.AccountType)
 	if err != nil {
+		logger.GetLogger().Error("failed to parse account type", slog.String("error", err.Error()))
 		return nil, err
 	}
 
@@ -91,21 +99,25 @@ func (r *AccountRepository) CreateAccount(ctx context.Context, account *domain.A
 func (r *AccountRepository) GetAccountByID(ctx context.Context, id uuid.UUID) (*domain.Account, error) {
 	account, err := r.store.GetAccountByID(ctx, id)
 	if err != nil {
+		logger.GetLogger().Error("failed to get account by ID", slog.String("error", err.Error()))
 		return nil, err
 	}
 
 	nb, err := utils.NumericToBigRat(account.Balance)
 	if err != nil {
+		logger.GetLogger().Error("failed to convert balance to big.Rat", slog.String("error", err.Error()))
 		return nil, err
 	}
 
 	status, err := domain.ParseAccountStatus(account.Status)
 	if err != nil {
+		logger.GetLogger().Error("failed to parse account status", slog.String("error", err.Error()))
 		return nil, err
 	}
 
 	accountType, err := domain.ParseAccountType(account.AccountType)
 	if err != nil {
+		logger.GetLogger().Error("failed to parse account type", slog.String("error", err.Error()))
 		return nil, err
 	}
 
@@ -126,21 +138,27 @@ func (r *AccountRepository) GetAccountByID(ctx context.Context, id uuid.UUID) (*
 func (r *AccountRepository) GetAccountByAccountNumber(ctx context.Context, accountNumber string) (*domain.Account, error) {
 	account, err := r.store.GetAccountByAccountNumber(ctx, accountNumber)
 	if err != nil {
+		if err != pgx.ErrNoRows {
+			logger.GetLogger().Error("failed to get account by account number", slog.String("error", err.Error()))
+		}
 		return nil, err
 	}
 
 	nb, err := utils.NumericToBigRat(account.Balance)
 	if err != nil {
+		logger.GetLogger().Error("failed to convert balance to big.Rat", slog.String("error", err.Error()))
 		return nil, err
 	}
 
 	status, err := domain.ParseAccountStatus(account.Status)
 	if err != nil {
+		logger.GetLogger().Error("failed to parse account status", slog.String("error", err.Error()))
 		return nil, err
 	}
 
 	accountType, err := domain.ParseAccountType(account.AccountType)
 	if err != nil {
+		logger.GetLogger().Error("failed to parse account type", slog.String("error", err.Error()))
 		return nil, err
 	}
 

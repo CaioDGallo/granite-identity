@@ -4,8 +4,10 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"log/slog"
 
 	"github.com/CaioDGallo/granite-identity/internal/config"
+	"github.com/CaioDGallo/granite-identity/internal/logger"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -23,10 +25,12 @@ func Connect(ctx context.Context, cfg config.Config) (*pgxpool.Pool, error) {
 			cfg.DBName,
 		))
 	if err != nil {
+		logger.GetLogger().Error("failed to connect to database", slog.String("error", err.Error()))
 		return nil, err
 	}
 
 	if err := pool.Ping(ctx); err != nil {
+		logger.GetLogger().Error("failed to ping database", slog.String("error", err.Error()))
 		return nil, err
 	}
 

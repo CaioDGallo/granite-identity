@@ -6,6 +6,7 @@ import (
 	"math/big"
 	"net/http"
 
+	"github.com/CaioDGallo/granite-identity/internal/logger"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
@@ -90,6 +91,5 @@ func LogRequestHandling(c *gin.Context, logMessage string) {
 		return
 	}
 
-	logger := slog.With(slog.String("request_id", requestID), slog.String("user_id", userID.String()))
-	logger.Info(logMessage)
+	logger.GetLogger().Info(logMessage, slog.String("request_id", requestID), slog.String("user_id", userID.String()))
 }

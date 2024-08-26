@@ -21,7 +21,7 @@ func RegisterRoutes(router *gin.Engine) {
 }
 
 func createAccount(c *gin.Context) {
-	utils.LogRequestHandling(c, "Handling create account request")
+	utils.LogRequestHandling(c, "handling create account request")
 
 	var req service.CreateAccountRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -35,11 +35,12 @@ func createAccount(c *gin.Context) {
 		return
 	}
 
+	utils.LogRequestHandling(c, "create account request handled successfully")
 	c.JSON(http.StatusOK, account)
 }
 
 func getAccount(c *gin.Context) {
-	utils.LogRequestHandling(c, "Handling get account request")
+	utils.LogRequestHandling(c, "handling get account request")
 
 	id := c.Param("id")
 	account, err := accountService.GetAccountByID(id)
@@ -48,5 +49,6 @@ func getAccount(c *gin.Context) {
 		return
 	}
 
+	utils.LogRequestHandling(c, "get account request handled successfully")
 	c.JSON(http.StatusOK, account)
 }
