@@ -8,7 +8,10 @@ import (
 
 	"github.com/CaioDGallo/granite-identity/internal/database"
 	"github.com/CaioDGallo/granite-identity/internal/domain"
+	"github.com/CaioDGallo/granite-identity/internal/logger"
 	"github.com/CaioDGallo/granite-identity/internal/repository"
+	"github.com/CaioDGallo/granite-identity/internal/security/encryption"
+	"github.com/CaioDGallo/granite-identity/internal/security/keymanager"
 	"github.com/google/uuid"
 )
 
@@ -44,6 +47,7 @@ func (s *AccountService) CreateAccount(req CreateAccountRequest) (*domain.Accoun
 	for {
 		accountNumber, err = domain.GenerateAccountNumber()
 		if err != nil {
+			logger.GetLogger().Error("failed to generate account number", "error", err.Error())
 			return nil, err
 		}
 
@@ -54,8 +58,15 @@ func (s *AccountService) CreateAccount(req CreateAccountRequest) (*domain.Accoun
 		}
 	}
 
+	encryptedAccountNumber, err := encryption.Encrypt(accountNumber, keymanager.GetKey())
+	if err != nil {
+		logger.GetLogger().Error("failed to encrypt account number", "error", err.Error())
+		return nil, err
+	}
+
 	accountType, err := domain.ParseAccountTypeFromString(req.AccountType)
 	if err != nil {
+		logger.GetLogger().Error("failed to parse account type", "error", err.Error())
 		return nil, err
 	}
 
@@ -69,13 +80,22 @@ func (s *AccountService) CreateAccount(req CreateAccountRequest) (*domain.Accoun
 		CreatedAt:     time.Now(),
 		UpdatedAt:     time.Now(),
 		LastActivity:  time.Now(),
-		AccountNumber: accountNumber,
+		AccountNumber: encryptedAccountNumber,
 	}
 
 	newAccount, err := s.r.CreateAccount(ctx, account)
 	if err != nil {
+		logger.GetLogger().Error("failed to create account", "error", err.Error())
 		return nil, err
 	}
+
+	decryptedAccountNumber, err := encryption.Decrypt(newAccount.AccountNumber, keymanager.GetKey())
+	if err != nil {
+		logger.GetLogger().Error("failed to decrypt account number", "error", err.Error())
+		return nil, err
+	}
+
+	newAccount.AccountNumber = decryptedAccountNumber
 
 	return newAccount, nil
 }
@@ -83,6 +103,7 @@ func (s *AccountService) CreateAccount(req CreateAccountRequest) (*domain.Accoun
 func (s *AccountService) GetAccountByID(accountID string) (*domain.Account, error) {
 	accountUUID, err := uuid.Parse(accountID)
 	if err != nil {
+		logger.GetLogger().Error("failed to parse account ID", "error", err.Error())
 		return nil, err
 	}
 
@@ -90,8 +111,17 @@ func (s *AccountService) GetAccountByID(accountID string) (*domain.Account, erro
 
 	account, err := s.r.GetAccountByID(ctx, accountUUID)
 	if err != nil {
+		logger.GetLogger().Error("failed to get account by ID", "error", err.Error())
 		return nil, err
 	}
+
+	decryptedAccountNumber, err := encryption.Decrypt(account.AccountNumber, keymanager.GetKey())
+	if err != nil {
+		logger.GetLogger().Error("failed to decrypt account number", "error", err.Error())
+		return nil, err
+	}
+
+	account.AccountNumber = decryptedAccountNumber
 
 	return account, nil
 }

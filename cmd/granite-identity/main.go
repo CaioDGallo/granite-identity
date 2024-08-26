@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"log/slog"
 
@@ -9,6 +10,7 @@ import (
 	v1 "github.com/CaioDGallo/granite-identity/internal/api/v1"
 	"github.com/CaioDGallo/granite-identity/internal/config"
 	database "github.com/CaioDGallo/granite-identity/internal/database"
+	"github.com/CaioDGallo/granite-identity/internal/security/keymanager"
 	"github.com/gin-gonic/gin"
 )
 
@@ -16,6 +18,25 @@ func main() {
 	cfg, err := config.LoadConfig()
 	if err != nil {
 		log.Fatalf("Failed to load configuration: %v", err)
+	}
+
+	var keyLoader keymanager.KeyLoader
+
+	switch cfg.KeyType {
+	case "file":
+		keyLoader = &keymanager.FileKeyLoader{Path: cfg.KeySource}
+	case "env":
+		keyLoader = &keymanager.EnvKeyLoader{EnvVar: cfg.KeySource}
+	case "kms":
+		keyLoader = &keymanager.KMSKeyLoader{KeyID: cfg.KeySource}
+	default:
+		fmt.Println("No valid KeyType specified")
+		return
+	}
+
+	_, err = keymanager.LoadKey(keyLoader)
+	if err != nil {
+		log.Fatalf("Failed to load key: %v", err)
 	}
 
 	pool, err := database.Connect(context.Background(), *cfg)

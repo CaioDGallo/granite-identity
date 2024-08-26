@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS accounts (
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
     account_type account_type NOT NULL DEFAULT 'Checking',
-    account_number VARCHAR(50) NOT NULL,
+    account_number VARCHAR(64) NOT NULL,
     last_activity TIMESTAMP NOT NULL DEFAULT NOW()
 );
 

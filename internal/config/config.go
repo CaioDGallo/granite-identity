@@ -20,6 +20,8 @@ type Config struct {
 	MessageBrokerURL string
 	Environment      string
 	Version          string
+	KeyType          string
+	KeySource        string
 }
 
 func LoadConfig() (*Config, error) {
@@ -38,6 +40,8 @@ func LoadConfig() (*Config, error) {
 		MessageBrokerURL: getEnv("MESSAGE_BROKER_URL", "amqp://guest:guest@172.17.0.1:5672/"),
 		Environment:      getEnv("ENVIRONMENT", "development"),
 		Version:          getEnv("VERSION", "v0.0.1"),
+		KeySource:        getEnv("KEY_SOURCE", "./internal/security/secret.key"),
+		KeyType:          getEnv("KEY_TYPE", "file"),
 	}
 
 	return config, nil

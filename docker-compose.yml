@@ -11,6 +11,7 @@ services:
       POSTGRES_DB: ${DB_NAME}
     volumes:
       - granitedb:/var/lib/postgresql/data
+      - ./init:/docker-entrypoint-initdb.d
 
   granite-postgres-exporter:
     image: prometheuscommunity/postgres-exporter
