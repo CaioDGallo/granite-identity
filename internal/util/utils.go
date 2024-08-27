@@ -2,13 +2,10 @@ package utils
 
 import (
 	"fmt"
-	"log/slog"
 	"math/big"
 	"net/http"
 
-	"github.com/CaioDGallo/granite-identity/internal/logger"
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
@@ -61,35 +58,4 @@ func GetRequestID(c *gin.Context) (string, bool) {
 	}
 
 	return requestID.(string), true
-}
-
-func GetUserID(c *gin.Context) (uuid.UUID, bool) {
-	userID, exists := c.Get("UserID")
-	if !exists {
-		// TODO: remove when userID is implemented
-		return uuid.New(), true
-		//--
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "User ID not found"})
-		return uuid.Nil, false
-	}
-
-	return userID.(uuid.UUID), true
-}
-
-func LogRequestHandling(c *gin.Context, logMessage string) {
-	requestID, exists := GetRequestID(c)
-
-	if !exists {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Request ID not found"})
-		return
-	}
-
-	userID, exists := GetUserID(c)
-
-	if !exists {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "User ID not found"})
-		return
-	}
-
-	logger.GetLogger().Info(logMessage, slog.String("request_id", requestID), slog.String("user_id", userID.String()))
 }

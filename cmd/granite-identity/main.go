@@ -48,7 +48,7 @@ func main() {
 
 	router := gin.Default()
 
-	router.Use(middleware.RequestID())
+	router.Use(middleware.Logging())
 
 	v1.RegisterRoutes(router)
 

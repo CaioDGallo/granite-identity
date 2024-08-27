@@ -1,10 +1,11 @@
 package v1
 
 import (
+	"log/slog"
 	"net/http"
 
+	"github.com/CaioDGallo/granite-identity/internal/logger"
 	"github.com/CaioDGallo/granite-identity/internal/service"
-	utils "github.com/CaioDGallo/granite-identity/internal/util"
 	"github.com/gin-gonic/gin"
 )
 
@@ -21,7 +22,7 @@ func RegisterRoutes(router *gin.Engine) {
 }
 
 func createAccount(c *gin.Context) {
-	utils.LogRequestHandling(c, "handling create account request")
+	logger.GetLogger().Info("handling create account request")
 
 	var req service.CreateAccountRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -35,12 +36,12 @@ func createAccount(c *gin.Context) {
 		return
 	}
 
-	utils.LogRequestHandling(c, "create account request handled successfully")
+	logger.GetLogger().Info("account created", slog.String("account_id", account.ID.String()))
 	c.JSON(http.StatusOK, account)
 }
 
 func getAccount(c *gin.Context) {
-	utils.LogRequestHandling(c, "handling get account request")
+	logger.GetLogger().Info("handling get account request")
 
 	id := c.Param("id")
 	account, err := accountService.GetAccountByID(id)
@@ -49,6 +50,6 @@ func getAccount(c *gin.Context) {
 		return
 	}
 
-	utils.LogRequestHandling(c, "get account request handled successfully")
+	logger.GetLogger().Info("account retrieved", slog.String("account_id", account.ID.String()))
 	c.JSON(http.StatusOK, account)
 }
