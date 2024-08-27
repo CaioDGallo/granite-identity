@@ -22,6 +22,7 @@ type Config struct {
 	Version          string
 	KeyType          string
 	KeySource        string
+	GRPCPort         string
 }
 
 func LoadConfig() (*Config, error) {
@@ -42,6 +43,7 @@ func LoadConfig() (*Config, error) {
 		Version:          getEnv("VERSION", "v0.0.1"),
 		KeySource:        getEnv("KEY_SOURCE", "./internal/security/secret.key"),
 		KeyType:          getEnv("KEY_TYPE", "file"),
+		GRPCPort:         getEnv("GRPC_PORT", "50051"),
 	}
 
 	return config, nil

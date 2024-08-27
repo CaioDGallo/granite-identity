@@ -19,5 +19,10 @@ func Init(ctx context.Context) {
 }
 
 func GetLogger() *slog.Logger {
+	if Logger == nil {
+		baseHandler := slog.NewJSONHandler(os.Stdout, nil)
+		return slog.New(baseHandler).With(slog.String("service", "granite-identity"))
+	}
+
 	return Logger
 }

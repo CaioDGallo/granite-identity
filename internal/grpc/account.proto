@@ -1,0 +1,47 @@
+syntax = "proto3";
+
+option go_package = "github.com/CaioDGallo/granite-identity/internal/grpc";
+
+package grpc;
+
+service AccountService {
+  rpc GetAccountByID (GetAccountRequest) returns (GetAccountResponse) {}
+  rpc GetAccountByUserID (GetAccountRequest) returns (GetAccountResponse) {}
+  rpc CreateAccount (CreateAccountRequest) returns (CreateAccountResponse) {}
+}
+
+message GetAccountRequest {
+  string id = 1;
+}
+
+message GetAccountResponse {
+  string created_at = 1;
+  string updated_at = 2;
+  string last_activity = 3;
+  string currency = 4;
+  string account_number = 5;
+  string balance = 6;
+  string account_type = 7;
+  string status = 8;
+  string id = 9;
+  string user_id = 10;
+}
+
+message CreateAccountRequest {
+  string user_id = 1;
+  string currency = 2;
+  string account_type = 3;
+}
+
+message CreateAccountResponse {
+  string created_at = 1;
+  string updated_at = 2;
+  string last_activity = 3;
+  string currency = 4;
+  string account_number = 5;
+  string balance = 6;
+  string account_type = 7;
+  string status = 8;
+  string id = 9;
+  string user_id = 10;
+}
