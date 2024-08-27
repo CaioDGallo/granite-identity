@@ -13,7 +13,7 @@ import (
 )
 
 type GraniteGRPCServer struct {
-	pb.UnimplementedAccountServiceServer
+	pb.AccountServiceServer
 }
 
 func (s *GraniteGRPCServer) StartListening(cfg *config.Config, wg *sync.WaitGroup) {
