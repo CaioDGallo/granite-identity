@@ -2,7 +2,6 @@ package grpc
 
 import (
 	"context"
-	"fmt"
 	"log/slog"
 	"time"
 
@@ -13,16 +12,15 @@ import (
 )
 
 func (s *GraniteGRPCServer) GetAccountByID(ctx context.Context, in *pb.GetAccountRequest) (*pb.GetAccountResponse, error) {
+	logger.GetLogger().Info("handling get account by id gRPC request")
+
 	account, err := service.NewAccountService().GetAccountByID(in.GetId())
 	if err != nil {
 		logger.GetLogger().Error("failed to get account by id", slog.String("error", err.Error()))
 		return nil, err
 	}
 
-	// Debug prints to check time values
-	fmt.Printf("CreatedAt: %v\n", account.CreatedAt)
-	fmt.Printf("UpdatedAt: %v\n", account.UpdatedAt)
-	fmt.Printf("LastActivity: %v\n", account.LastActivity)
+	logger.GetLogger().Info("account retrieved", slog.String("account_id", account.ID.String()))
 
 	return &pb.GetAccountResponse{
 		Id:            account.ID.String(),
@@ -39,6 +37,8 @@ func (s *GraniteGRPCServer) GetAccountByID(ctx context.Context, in *pb.GetAccoun
 }
 
 func (s *GraniteGRPCServer) CreateAccount(ctx context.Context, in *pb.CreateAccountRequest) (*pb.CreateAccountResponse, error) {
+	logger.GetLogger().Info("handling create account gRPC request")
+
 	userUUID, err := uuid.Parse(in.GetUserId())
 	if err != nil {
 		logger.GetLogger().Error("failed to parse user ID", slog.String("error", err.Error()))
@@ -56,6 +56,7 @@ func (s *GraniteGRPCServer) CreateAccount(ctx context.Context, in *pb.CreateAcco
 		return nil, err
 	}
 
+	logger.GetLogger().Info("account created", slog.String("account_id", account.ID.String()))
 	return &pb.CreateAccountResponse{
 		Id:            account.ID.String(),
 		CreatedAt:     account.CreatedAt.Format(time.RFC3339),

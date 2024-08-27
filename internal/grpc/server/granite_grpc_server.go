@@ -8,7 +8,7 @@ import (
 
 	"github.com/CaioDGallo/granite-identity/internal/config"
 	pb "github.com/CaioDGallo/granite-identity/internal/grpc"
-	"github.com/CaioDGallo/granite-identity/internal/logger"
+	interceptors "github.com/CaioDGallo/granite-identity/internal/grpc/interceptors"
 	"google.golang.org/grpc"
 )
 
@@ -20,12 +20,16 @@ func (s *GraniteGRPCServer) StartListening(cfg *config.Config, wg *sync.WaitGrou
 	defer wg.Done()
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%s", cfg.GRPCPort))
 	if err != nil {
-		logger.GetLogger().Error("gRPC failed to listen: ", slog.String("error", err.Error()))
+		slog.Error("gRPC failed to listen: ", slog.String("error", err.Error()))
 	}
-	server := grpc.NewServer()
+
+	server := grpc.NewServer(
+		grpc.UnaryInterceptor(interceptors.LoggingInterceptor),
+	)
+
 	pb.RegisterAccountServiceServer(server, &GraniteGRPCServer{})
-	logger.GetLogger().Info("gRPC server listening at ", slog.String("port", lis.Addr().String()))
+	slog.Info("gRPC server listening at ", slog.String("port", lis.Addr().String()))
 	if err := server.Serve(lis); err != nil {
-		logger.GetLogger().Error("gRPC failed to serve: ", slog.String("error", err.Error()))
+		slog.Error("gRPC failed to serve: ", slog.String("error", err.Error()))
 	}
 }
