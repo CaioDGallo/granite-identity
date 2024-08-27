@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: granite-config
+data:
+  DB_NAME: "granitedb"
+  SERVER_ADDRESS: ":8080"
+  DB_HOST: "granitedb"
+  DB_PORT: "5432"  # Ensure numeric values are quoted
+  DB_USER: "postgres"
+  DB_PASSWORD: "securepassword"
+  ENV: "development"
+  MESSAGE_BROKER_URL: "amqp://guest:guest@172.17.0.1:5672/"

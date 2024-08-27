@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: granitedb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: granitedb
+  template:
+    metadata:
+      labels:
+        app: granitedb
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:latest
+        ports:
+        - containerPort: 5432
+        env:
+        - name: POSTGRES_DB
+          valueFrom:
+            configMapKeyRef:
+              name: granite-config
+              key: DB_NAME
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: granite-secret
+              key: DB_USER
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: granite-secret
+              key: DB_PASSWORD
+        volumeMounts:
+        - name: granitedb-storage
+          mountPath: /var/lib/postgresql/data
+      volumes:
+      - name: granitedb-storage
+        persistentVolumeClaim:
+          claimName: granitedb-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: granitedb
+spec:
+  type: NodePort
+  ports:
+  - port: 5432
+    targetPort: 5432
+  selector:
+    app: granitedb
+

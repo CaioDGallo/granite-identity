@@ -13,15 +13,6 @@ services:
       - granitedb:/var/lib/postgresql/data
       - ./init:/docker-entrypoint-initdb.d
 
-  granite-postgres-exporter:
-    image: prometheuscommunity/postgres-exporter
-    ports:
-      - 9187:9187
-    environment:
-      DATA_SOURCE_NAME: "postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:5432/${DB_NAME}?sslmode=disable"
-    links:
-      - granitedb
-  
   granite:
     container_name: granite
     build:
