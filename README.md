@@ -1,45 +1,53 @@
-# Project Idea: Fintech Transaction Management System
+# Granite Account
 
-<!--toc:start-->
-- [Project Idea: Fintech Transaction Management System](#project-idea-fintech-transaction-management-system)
-  - [Project Description](#project-description)
-  - [Key Aspects to Highlight:](#key-aspects-to-highlight)
-<!--toc:end-->
+![Granite Account Banner](./docs/assets/granite-logo.png)
 
-## Project Description
+![License](https://img.shields.io/github/license/CaioDGallo/go-ama)
 
-- Build microservices that simulate key financial operations a fintech might be interested in:
+Granite Account is a Go-based application designed to demonstrate production-grade patterns for an account management system in a fintech environment. The project focuses on building a robust, scalable architecture with a clear emphasis on reliability, traceability, and secure communication.
 
-    1. Transaction Service: Processes financial transactions (e.g., payments, transfers).
-    2. Account Service: Manages user accounts, balances, and transaction history.
-    3. Fraud Detection Service: Analyzes transactions in real-time for fraud patterns.
-    4. Notification Service: Sends alerts and notifications for key events (e.g., successful transactions, suspicious activities).
+## Key Features
 
-- Implement financial-grade security measures, such as:
+- **Traceable Requests:** Requests are tagged with unique request IDs, enabling end-to-end traceability across services for debugging and monitoring purposes.
+- **Logger Middleware:** Integrated logging middleware captures every request and response, providing valuable insights for audit trails and system health checks.
+- **ACID-Compliant Transactions:** Ensures that all database operations adhere to the ACID principles, guaranteeing consistency and reliability in transaction handling.
+- **Client-Server Communication:** Employs JSON for simple and flexible communication between clients and the application.
+- **Service-to-Service Communication:** Utilizes gRPC for high-performance, type-safe communication between microservices.
 
-    - Encryption for sensitive data in transit and at rest.
-    - HMAC (Hash-based Message Authentication Code) for message integrity.
-    - Two-Factor Authentication (2FA) for user authentication.
+## Next Steps
 
-- Use idempotency to ensure that financial operations are not executed more than once, which is critical in payment processing systems.
+- **Rate Limiting:** Implementing rate limiting to control the flow of incoming requests, ensuring fair usage and preventing abuse.
+- **Circuit Breaking:** Adding a circuit breaker pattern to enhance system resilience by gracefully handling potential service failures.
 
-- Ensure ACID compliance in database transactions, especially for the Account Service, to maintain consistency during concurrent operations.
+## Installation
 
-- Integrate with external APIs for exchange rates, payment gateways, or other financial services (even if simulated).
+To set up the project locally:
 
-## Key Aspects to Highlight
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/your-username/granite-account.git
+   cd granite-account
+   ```
 
-1. Security: Implement industry-standard security practices such as OAuth2 for API authentication, encryption, and rate-limiting to prevent abuse.
-2. Data Consistency: Ensure that all transactions are atomic and consistent. This could involve eventual consistency in a distributed setup or strict transactional integrity for critical services.
-3. High Availability & Fault Tolerance: Use patterns like circuit breakers and retry mechanisms to ensure that the system can handle failures gracefully.
-4. Scalability: Demonstrate horizontal scaling for services like Transaction Processing. Use message queues (e.g., RabbitMQ or Kafka) to decouple services and allow for load balancing.
-5. Monitoring & Alerts: Implement detailed logging, tracing, and alerting. Focus on financial metrics like transaction failures, processing times, and fraud detection triggers.
-6. Compliance: Incorporate practices that simulate real-world regulatory requirements, such as audit logging for transactions and GDPR-style data management.
+2. **Build the project using the Docker Compose:**
+   ```bash
+   docker compose up --build
+   ```
 
-Example Technologies:
+3. **Access the application:**
+   The application should be running on `http://localhost:8080`.
 
-- Database: PostgreSQL with ACID transactions.
-- Caching: Redis for caching user sessions and frequently accessed data.
-- Message Queue: RabbitMQ or Kafka for asynchronous transaction processing.
-- API Documentation: Swagger for API documentation to show clear contract definitions, which is crucial in financial applications.
-- CI/CD: Demonstrate continuous deployment pipelines with automated testing, perhaps using GitHub Actions.
+## Usage
+
+- **REST API:** Granite Account exposes a RESTful API for client communication, using JSON as the data format.
+- **gRPC Services:** Microservices interact using gRPC, ensuring efficient and scalable service-to-service communication.
+- **Request Logging:** Every request is logged along with its unique request ID, making it easy to track and troubleshoot issues.
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit issues, fork the repository, and open pull requests.
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](./LICENSE) file for more details.
+
