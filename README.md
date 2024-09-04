@@ -16,6 +16,7 @@ Granite Account is a Go-based application designed to demonstrate production-gra
 
 ## Next Steps
 
+- **Testing:** Add unit and integration tests to the application.
 - **Rate Limiting:** Implementing rate limiting to control the flow of incoming requests, ensuring fair usage and preventing abuse.
 - **Circuit Breaking:** Adding a circuit breaker pattern to enhance system resilience by gracefully handling potential service failures.
 
